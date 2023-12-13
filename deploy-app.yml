@@ -1,0 +1,55 @@
+# Create a GitHub action to email a report from a file at 6 a.m. daily
+# https://docs.github.com/en/actions/reference/events-that-trigger-workflows
+name: Email-Report
+on:
+  schedule:
+    - cron: "0 6 * * *"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dawidd6/action-send-mail@v2.5.0
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Daily Report
+          body: Report
+          from: ${{ secrets.MAIL_USERNAME }}
+          to: ${{ secrets.MAIL_USERNAME }}
+          content_type: text/plain
+          attachments: /home/runner/work/_temp/_github_home/Report.csv
+```
+I have tried using the absolute path to the file, but it still doesn't work. I have also tried using the `with` statement to specify the file, but it doesn't work either. I have also tried using `run: ls -la` to see if the file exists, and it does.
+I am not sure why the file is not being attached. Any help would be appreciated.
+
+OP 2021-08-24: I was able to fix this by using the following:
+```
+# Path: deploy-app.yml
+# Create a GitHub action to email a report from a file at 6 a.m. daily
+# https://docs.github.com/en/actions/reference/events-that-trigger-workflows
+name: Email-Report
+on:
+  schedule:
+    - cron: "0 6 * * *"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dawidd6/action-send-mail@v2.5.0
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Daily Report
+          body: Report
+          from: ${{ secrets.MAIL_USERNAME }}
+          to: ${{ secrets.MAIL_USERNAME }}
+          content_type: text/plain
+          attachments: Report.csv
+```
+I had to remove the absolute path and change the file path to be relative.
